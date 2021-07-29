@@ -2,7 +2,7 @@
 
 fun() {
     # 设备ID   adb devices 获取的
-    serno="298d1844"
+    serno="88Y5T19B26003875"
     fpath=~/Desktop/"$serno.sh"
     echo "#!/bin/bash" >"$fpath"
     echo "解析设备[$serno]开始"
