@@ -6,6 +6,9 @@ nowork_array=(
     "com.android.settings"
     "com.google.android.dialer"
     "com.google.android.apps.messaging"
+    "com.oneplus.mms"
+    "com.android.dialer"
+    "com.android.settings"
 )
 # monkey时间
 run_time_min=3
