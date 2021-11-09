@@ -1,35 +1,53 @@
 # Fastbot-Android Open Source Handbook
 
 ## Introduction
-> Fastbot is a model-based testing tool for modeling GUI transitions to discover app stability problems. It combines machine learning and reinforcement learning techniques to assist discovery in a more intelligent way. GUI state abstraction in Fastbot is achieved with reference to project APE.
+> Fastbot is a model-based testing tool for modeling GUI transitions to discover app stability problems. It combines machine learning and reinforcement learning techniques to assist discovery in a more intelligent way.
+
+> Related:  [Fastbot-iOS](https://github.com/bytedance/Fastbot_iOS)
+
+***More detail see at [Fastbot architecture](https://mp.weixin.qq.com/s/QhzqBFZygkIS6C69__smyQ)
 
 ## Features
-* Fastbot is compatible with multiple Android OS systems, including original Android, Android 5-11 and a variation of modified Andriod-based system by domestic manufacturers.
+* Fastbot is compatible with multiple Android OS systems, including original Android, Android 5-12 and a variation of modified Andriod-based system by domestic manufacturers.
 * Inherited from original Monkey, Fastbot allows for fast action insertion as high as 12 actions per second.
 * Expert system is equipped with the ability to customize deeply based on needs from different business lines.
 * Fastbot is a model-based-testing tool. Model is build via graph transition with the consideration of high reward choice selection.
 * Fastbot supports non-standard widgets by computer vision techniques such as YOLOv3, ocr and cv segmentation.
 
-> Fastbot-iOS: Under construction
+ **update 2021.09**
+* Fastbot supports model reuse: see at `/sdcard/fastbot_[packagename].fbm`. This file is loaded by default if it exists when Fastbot starts. During execution, it is overwritten every 10 minutes. The user can delete or copy this file based on their needs. 
+
+ **update 2021.11**
+ * support android 12 
+ * add some new GUI fuzzing & mutation features (inspired/supported by [Themis](https://github.com/the-themis-benchmarks/home))
 
 ## Usage
 ### Environment preparation
-* Make sure Android version on your device or emulator is Android 5, 6, 7, 8, 9, 10, 11
-* Push framework.jar and monkeyq.jar into your device, most likely /sdcard
-```
-adb push framework.jar /sdcard
-adb push monkeyq.jar /sdcard
-```
+* Make sure Android version on your device or emulator is Android 5, 6, 7, 8, 9, 10, 11, 12
+* Push `framework.jar fastbot-thirdpart.jar monkeyq.jar` into your device, most likely /sdcard, push `libs/* ` to `/data/local/tmp/`
+  ```shell
+  adb push *.jar /sdcard
+  adb push libs/* /data/local/tmp/
+  ```
 
 ### Run Fastbot with shell command
 `
-adb -s device_vendor_id shell CLASSPATH=/sdcard/monkeyq.jar:/sdcard/framework.jar exec app_process /system/bin
-com.android.commands.monkey.Monkey -p package_name --agent robot --running-minutes duration(min) --throttle delay(ms) -v -v
+adb -s device_vendor_id shell CLASSPATH=/sdcard/monkeyq.jar:/sdcard/framework.jar:/sdcard/fastbot-thirdpart.jar exec app_process /system/bin
+com.android.commands.monkey.Monkey -p package_name --agent reuseq --running-minutes duration(min) --throttle delay(ms) -v -v
 `
+* before run the command，user can push the strings in apk to `/sdcard/` to improve the model
+  * `aapt2` or `aapt` depends your android sdk, a sample aapt path is ``` ${ANDROID_HOME}/build-tools/28.0.2/aapt2```
+
+  ```shell
+  aapt2 dump  --values strings  [testApp_path.apk] > max.valid.strings
+  adb push max.valid.strings /sdcard 
+  ```
+
+> For more Details,  please refer to the handbook in [中文手册](./handbook-cn.md)
 
 #### required parameters
 
-```
+``` shell
 -s device_vendor_id # if multiple devices allowed, this parameter is needed; otherwise just optional
 -p package_name # app package name under test, the package name for the app under test can be acquired by "adb shell pm list package", once the device is ensured for connection by "adb devices"
 --agent robot # strategy selected for testing, no need to modify
@@ -38,9 +56,15 @@ com.android.commands.monkey.Monkey -p package_name --agent robot --running-minut
 ```
 
 #### optional parameters
-```
+``` shell
 --bugreport # log printed when crash occurs
 --output-directory /sdcard/xxx # folder for output directory
+```
+
+#### optional fuzzing data
+``` shell
+adb push data/fuzzing/ /sdcard/
+adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/fuzzing
 ```
 
 ### Results Explanation
@@ -55,11 +79,10 @@ com.android.commands.monkey.Monkey -p package_name --agent robot --running-minut
 * Be aware for totalActivity: The list totalActivity is acquired through framework interface PackageManager.getPackageInfo. Contained activities in the list includes many abandoned, invisible or not-reachable activities.
 
 
-#### Acknowledgement
+## Acknowledgement
 * We appreciate the insights and code contribution from project APE by Dr. Tianxiao Gu and Prof. Zhendong Su (ETH Zurich) etc.
 * We thank the useful discussions with Prof. Yao Guo (PKU) on Fastbot.
 * We want to express our gratitude to Prof. Zhenhua Li (THU), Dr. Liangyi Gong (THU) and Prof. Ting Su (East China Normal University) for their helpful opinions on Fastbot.
 * We are also grateful for valuable advices from Prof. Jian Zhang (Chinese Academy of Sciences).
 
-> For more Details,  please refer to the handbook in Chinese version
 
