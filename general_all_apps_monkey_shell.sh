@@ -26,7 +26,7 @@ general(){
         if [[ "${nowork_array[@]}"  =~ "${pkg}" ]]; then
            echo "包含. ${pkg} ，跳过."
         else
-            echo "adb -s $serno shell CLASSPATH=/sdcard/monkeyq.jar:/sdcard/framework.jar:/sdcard/fastbot-thirdpart.jar exec app_process /system/bin com.android.commands.monkey.Monkey -p $pkg --agent reuseq --running-minutes 3 --throttle 200 -v -v" >>$fpath
+            echo "adb -s $serno shell CLASSPATH=/sdcard/monkeyq.jar:/sdcard/framework.jar:/sdcard/fastbot-thirdpart.jar exec app_process /system/bin com.android.commands.monkey.Monkey -p $pkg --agent reuseq --running-minutes ${run_time_min} --throttle 200 -v -v" >>$fpath
             echo "adb -s $serno shell am force-stop $pkg" >>$fpath
             echo "adb -s $serno shell rm -rf /sdcard/fastbot*" >>$fpath
         fi
