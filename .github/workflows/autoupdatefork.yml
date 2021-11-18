@@ -1,7 +1,10 @@
 #更新fork
 name: update fork
 
-on: 
+on:
+  push:
+    branches: [ main ]
+
   schedule:
     - cron: '0 16 * * *' #设置定时任务
 
